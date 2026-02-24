@@ -3,7 +3,12 @@
     "title": "🎛️ ACE-Step V1.5 Playground💡",
     "subtitle": "Pushing the Boundaries of Open-Source Music Generation"
   },
-  "common": {},
+  "common": {
+    "language_metadata": {
+    "name": "English",
+    "native_name": "English"
+    }
+  },
   "dataset": {
     "title": "📊 Dataset Explorer",
     "dataset_label": "Dataset",
@@ -43,6 +48,7 @@
     "backend_info": "Select backend for 5Hz LM: vllm (faster) or pt (PyTorch, more compatible).",
     "init_llm_label": "Initialize 5Hz LM",
     "init_llm_info": "Check to initialize 5Hz LM during service initialization.",
+    "lm_unavailable_vram": "⚠️ LM not available for this GPU tier (VRAM too low)",
     "flash_attention_label": "Use Flash Attention",
     "flash_attention_info_enabled": "Enable flash attention for faster inference (requires flash_attn package).",
     "flash_attention_info_disabled": "Flash attention not available (flash_attn package not installed).",
@@ -196,8 +202,28 @@
     "remix_strength_info": "Control how closely the remix follows the source audio (higher = closer to original).",
     "cover_noise_strength_label": "Cover Strength",
     "cover_noise_strength_info": "Controls melody retention in Remix mode. Recommended: use the SFT model with a value of 0.1–0.25. A small increase restores the melody, but style transfer may require additional prompt tuning. (0 = pure noise/no cover, 1 = closest to original audio).",
+    "enable_normalization": "Enable Normalization",
+    "enable_normalization_info": "Normalize audio volume to target peak level to prevent clipping or ensure consistent loudness.",
+    "normalization_db": "Target Peak (dB)",
+    "normalization_db_info": "Target peak level in decibels. -1.0 dB is standard safe peak. -0.1 dB is max.",
+    "latent_shift": "Latent Shift",
+    "latent_shift_info": "Shift applied to DiT latents before VAE decode. Default 0 (no shift). Negative values (e.g. -0.04) can reduce clipping.",
+    "latent_rescale": "Latent Rescale",
+    "latent_rescale_info": "Rescale factor for DiT latents before VAE decode. Default 1.0 (no rescale). Values < 1.0 (e.g. 0.91) can reduce clipping.",
     "score_sensitivity_label": "Quality Score Sensitivity",
     "score_sensitivity_info": "Lower = more sensitive (default: 1.0). Adjusts how PMI maps to [0,1].",
+    "lora_accordion_title": "🔧 LoRA Adapter",
+    "lora_path_label": "LoRA Path",
+    "lora_path_placeholder": "./lora_output/final/adapter",
+    "lora_path_info": "Path to trained LoRA adapter directory",
+    "load_lora_btn": "📥 Load LoRA",
+    "unload_lora_btn": "🗑️ Unload",
+    "use_lora_label": "Use LoRA",
+    "use_lora_info": "Enable LoRA adapter for inference",
+    "lora_scale_label": "LoRA Scale",
+    "lora_scale_info": "LoRA influence strength (0=disabled, 1=full)",
+    "lora_status_label": "LoRA Status",
+    "lora_status_default": "No LoRA loaded",
     "think_label": "Think",
     "parallel_thinking_label": "ParallelThinking",
     "parallel_thinking_info": "Process batch samples in parallel for faster generation.",
@@ -435,7 +461,8 @@
     "generation_advanced": "## Advanced Settings\n\n### Key Parameters\n- **Inference Steps**: Turbo=8 (default), Base=up to 200. More steps ≠ always better for turbo\n- **Guidance Scale**: Base model only. Higher = follows prompt more strictly\n- **Shift**: Timestep shift (1.0–5.0). 3.0 recommended for turbo\n- **Seed**: Set a specific seed for reproducible results\n\n### LM Parameters\n- **Temperature** (0.0–2.0): Higher = more creative/random\n- **CFG Scale** (1.0–3.0): Higher = follows prompt more\n- **Top-K / Top-P**: Sampling strategies for diversity\n\n### Think Mode\nEnable **Think** to use 5Hz LM for smarter generation:\n- Generates semantic codes and metadata\n- Requires LM to be initialized\n- **ParallelThinking**: Process batches in parallel (faster)",
     "results": "## Results Section\n\n### Per-Sample Controls\n- **Audio Player**: Play, pause, download\n- **Send To Remix/Repaint**: Use this result as source for further editing\n- **Save**: Export audio + metadata as JSON\n- **Score**: Calculate quality score (perplexity-based)\n- **LRC**: Generate lyrics timestamps\n\n### Batch Navigation\n- Use **◀ Previous** / **Next ▶** to browse batches\n- Enable **AutoGen** to auto-generate next batch\n- Click **Apply These Settings to UI** to reuse parameters from a good result\n\n### Tips\n- Generate 2–4 variations (batch size) and pick the best\n- Use Score to objectively compare results\n- Save good results for reference",
     "training_dataset": "## Dataset Builder Tutorial\n\n### Step 1: Load or Scan\n- **Load**: Enter path to existing dataset JSON → Click Load\n- **Scan**: Enter audio folder path → Click Scan\n  - Supported: wav, mp3, flac, ogg, opus\n\n### Step 2: Configure\n- Set **Dataset Name**\n- Check **All Instrumental** if no vocals\n- Set **Custom Activation Tag** (unique trigger word for your LoRA)\n- Choose **Tag Position**: Prepend, Append, or Replace\n\n### Step 3: Auto-Label\n- Click **Auto-Label All** to generate captions, BPM, key, time sig\n- Use **Skip Metas** to skip BPM/Key/TimeSig (faster)\n\n### Step 4: Preview & Edit\n- Use slider to browse samples\n- Edit caption, lyrics, BPM, key manually\n- Click **Save Changes** per sample\n\n### Step 5: Save\n- Enter save path → Click **Save Dataset**\n\n### Step 6: Preprocess\n- Set tensor output directory → Click **Preprocess**\n- This encodes audio/text to tensors for training\n\n### 📖 Documentation\n- [LoRA Training Tutorial](https://github.com/ACE-Step/ACE-Step-1.5/blob/main/docs/en/LoRA_Training_Tutorial.md) — Full step-by-step guide\n- [Side-Step Advanced Training](https://github.com/ACE-Step/ACE-Step-1.5/blob/main/docs/sidestep/Getting%20Started.md) — CLI-based training with advanced features",
-    "training_train": "## LoRA Training Tutorial\n\n### Setup\n1. Enter **Preprocessed Tensors Directory** → Click **Load Dataset**\n2. Configure LoRA:\n   - **Rank** (r): 64 default. Higher = more capacity\n   - **Alpha**: Usually 2× rank (128)\n   - **Dropout**: 0.1 for regularization\n\n### Training\n3. Set **Learning Rate** (start with 1e-4)\n4. Set **Max Epochs** (500 default)\n5. Click **Start Training**\n6. Monitor loss curve — it should decrease over time\n7. Click **Stop Training** when satisfied\n\n### Export\n8. Enter export path → Click **Export LoRA**\n9. Load in Settings: set LoRA Path → Load LoRA → Enable Use LoRA\n\n### Tips\n- Use small batch size (1) if VRAM is limited\n- Gradient accumulation increases effective batch size\n- Save checkpoints frequently (every 200 epochs)\n\n### 📖 Documentation\n- [LoRA Training Tutorial](https://github.com/ACE-Step/ACE-Step-1.5/blob/main/docs/en/LoRA_Training_Tutorial.md) — Full step-by-step guide\n- [Side-Step Advanced Training](https://github.com/ACE-Step/ACE-Step-1.5/blob/main/docs/sidestep/Getting%20Started.md) — CLI training with corrected timesteps, LoKR, VRAM optimization",
+    "training_train": "## LoRA Training Tutorial\n\n### Setup\n1. Enter **Preprocessed Tensors Directory** → Click **Load Dataset**\n2. Configure LoRA:\n   - **Rank** (r): 64 default. Higher = more capacity\n   - **Alpha**: Usually 2× rank (128)\n   - **Dropout**: 0.1 for regularization\n\n### Training\n3. Set **Learning Rate** (start with 1e-4)\n4. Set **Max Epochs** (500 default)\n5. Click **Start Training**\n6. Monitor loss curve — it should decrease over time\n7. Click **Stop Training** when satisfied\n\n### Export\n8. Enter export path → Click **Export LoRA**\n9. Load in Settings: set LoRA Path → Load LoRA → Enable Use LoRA\n\n### 🚀 Try LoKr for Faster Training\nLoKr has greatly improved training efficiency. What used to take an hour now only takes 5 minutes — **over 10× faster**. This is crucial for training on consumer-grade GPUs. Switch to the **Train LoKr** tab to get started.\n\n### Tips\n- Use small batch size (1) if VRAM is limited\n- Gradient accumulation increases effective batch size\n- Save checkpoints frequently (every 200 epochs)\n\n### 📖 Documentation\n- [LoRA Training Tutorial](https://github.com/ACE-Step/ACE-Step-1.5/blob/main/docs/en/LoRA_Training_Tutorial.md) — Full step-by-step guide\n- [Side-Step Advanced Training](https://github.com/ACE-Step/ACE-Step-1.5/blob/main/docs/sidestep/Getting%20Started.md) — CLI training with corrected timesteps, LoKR, VRAM optimization",
+    "training_lokr": "## 🚀 LoKr Training Tutorial\n\nLoKr (Low-rank Kronecker product) has greatly improved training efficiency. What used to take an hour with LoRA now only takes 5 minutes — **over 10× faster**. This is crucial for training on consumer-grade GPUs.\n\n### Setup\n1. Enter **Preprocessed Tensors Directory** → Click **Load Dataset**\n2. Configure LoKr:\n   - **Linear Dim**: 64 default (similar to LoRA rank)\n   - **Linear Alpha**: 128 default (scaling factor)\n   - **Weight Decompose (DoRA)**: Enabled by default for better quality\n\n### Training\n3. Set **Learning Rate** (LoKr commonly uses higher LR, start with 1e-3)\n4. Set **Max Epochs** (500 default)\n5. Click **Start LoKr Training**\n6. Monitor loss curve — it should decrease over time\n7. Click **Stop Training** when satisfied\n\n### Export\n8. Enter export path → Click **Export LoKr**\n9. Load in Settings: set LoRA Path → Load LoRA → Enable Use LoRA\n\n### LoKr vs LoRA\n| | LoKr | LoRA |\n|---|---|---|\n| Speed | ⚡ ~10× faster | Slower |\n| VRAM | Lower | Higher |\n| Quality | Comparable | Baseline |\n| Best for | Consumer GPUs, rapid iteration | Maximum fidelity |\n\n### Tips\n- LoKr uses Kronecker decomposition for extreme efficiency\n- Enable **DoRA** (Weight Decompose) for improved quality\n- Use **Tucker decomposition** for additional compression\n- Higher learning rate (1e-3) often works better than LoRA's typical 1e-4",
     "training_export": "## Using Your Trained LoRA\n\n### Export\n1. After training, enter export path\n2. Click **Export LoRA**\n\n### Load & Use\n1. In Settings, set **LoRA Path** to your exported directory\n2. Click **Load LoRA**\n3. Enable **Use LoRA** checkbox\n4. Generate music — your LoRA style will be applied\n\n### Tips\n- Use your **Custom Activation Tag** in captions to trigger the style\n- ⚠️ LoRA is incompatible with INT8 quantization\n- You can unload and switch between different LoRAs"
   },
   "gen": {
